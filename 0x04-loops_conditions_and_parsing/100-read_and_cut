@@ -5,4 +5,8 @@
 #   user id
 #   Home directory path for the user
 
-cut -d ':' -f1,3,6 /etc/passwd
+while true
+do
+	cut -d: -f1,3,6 /etc/passwd
+	break
+done
