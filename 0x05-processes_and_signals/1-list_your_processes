@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # This bash script displays a list of currently running processes.
-# For all processes, for all users, including those which might not have a TTY
+# For all processes, for all users, including those which
+# might not have a TTY
 
-ps -a uf
+ps aux
