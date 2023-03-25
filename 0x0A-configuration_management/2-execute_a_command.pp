@@ -3,5 +3,7 @@
 #    Must use the exec Puppet resource
 #    Must use pkill
 exec{ 'killmenow':
-  command => 'pkill killmenow',
+  command  => 'pkill killmenow',
+  provider => 'shell',
+  path     => '/usr/bin',
 }
