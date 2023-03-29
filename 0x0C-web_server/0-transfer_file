@@ -15,7 +15,6 @@ username=$3
 private_key_path=$4
 
 user_ip="$username@$ip_address"
-echo "$user_ip"
 
 if [ "$args_num" -lt 4 ]
 then
