@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# This script is the ssh config file for a system
+# Requirements:
+#   Your SSH client configuration must be configured to use the private key ~/.ssh/school
+#   Your SSH client configuration must be configured to refuse to authenticate using a password
+Host ubuntu
+    HostName 54.175.223.104
+    User     me
+    IdentityFile      ~/.ssh/school
+
