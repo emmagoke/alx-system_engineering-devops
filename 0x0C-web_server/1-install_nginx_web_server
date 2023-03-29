@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# This script installs Nginx web server on a server
+
+sudo apt update
+sudo apt install nginx -y
+
+sudo ufw allow 'Nginx HTTP'
+
+sudo echo "Hello World!"
+
+sudo /etc/init.d/nginx restart
