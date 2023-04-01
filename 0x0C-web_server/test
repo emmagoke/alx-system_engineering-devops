@@ -1,0 +1,13 @@
+If you have established a web presence and would like to change your domain to a new address, it is best not to just abandon your old domain. Bookmarks to your site and links to your site located on other pages throughout the internet will break if your content disappears without any instructions to the browser about how to find its new location. Changing domains without redirecting will cause your site to lose traffic from previous visitors and older links.
+
+In this example, we will configure a redirect from the
+ 	location =/redirect_me {
+	return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4
+	}
+
+ "Welcome"
+old domain called domain1.com to the new one called domain2.com.
+We’ll use permanent redirects here because the old domain will be deprecated,
+and all traffic should go to the new domain from now on.
+Let’s assume you have your website configured to be served from a single
+domain called domain1.com already configured in Nginx as follows:
