@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# This shell script is used debug the Container resulting
+# from holbertonschool/265-0 images.
+service apache2 start
