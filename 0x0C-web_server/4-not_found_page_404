@@ -8,13 +8,13 @@ sudo ufw allow 'Nginx HTTP'
 
 echo "Hello World!" > /var/www/html/index.nginx-debian.html
 
-echo "Ceci n'est pas une page" >> /var/www/html/error_404.html
+echo "Ceci n'est pas une page" > /var/www/html/error_404.html
 # or echo "Ceci n'est pas une page" | sudo tee /var/www/html/error_404.hyml
 
-error="\tlocation /xyzfoo {\n\t\terror_page 404 /error_404.html;\n\t}"
+error="\terror_page 404 /error_404.html;"
 
 # This command replace what is in  line 24 (24i) of /etc/nginx/sites-available/default
 # with the content of string
-sudo sed -i "24i\ $error" /etc/nginx/sites-available/default
+sudo sed -i "26i\ $error" /etc/nginx/sites-available/default
 
 sudo /etc/init.d/nginx restart
