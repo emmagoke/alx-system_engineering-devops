@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Configure your Nginx server so that /redirect_me is redirecting to another page.
+# This bash script configures Nginx server so that /xyzfoo return 404 error and the string "Ceci n'est pas une page"
 
 sudo apt update
 sudo apt install nginx -y
@@ -9,14 +9,12 @@ sudo ufw allow 'Nginx HTTP'
 echo "Hello World!" > /var/www/html/index.nginx-debian.html
 
 echo "Ceci n'est pas une page" > /var/www/html/error_404.html
-# or echo "Ceci n'est pas une page" | sudo tee /var/www/html/error_404.html
+# or echo "Ceci n'est pas une page" | sudo tee /var/www/html/error_404.hyml
 
-string_="\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}"
-error="\tlocation /xyz {\n\t\terror_page 404 /error_404.html;\n\t}"
+error="\tlocation /xyzfoo {\n\t\terror_page 404 /error_404.html;\n\t}"
 
 # This command replace what is in  line 24 (24i) of /etc/nginx/sites-available/default
-# with the content of strings
-sudo sed -i  "24i\ $string_" /etc/nginx/sites-available/default
+# with the content of string
 sudo sed -i "24i\ $error" /etc/nginx/sites-available/default
 
 sudo /etc/init.d/nginx restart
