@@ -24,6 +24,7 @@ file_line {'redirect_me':
 }
 
 service {'Nginx-start':
-  ensure  => running,
-  name    => 'nginx',
+  ensure     => running,
+  hasrestart => true,
+  require    => Package['Nginx'],
 }
