@@ -19,6 +19,6 @@ if __name__ == '__main__':
     with open("{}.csv".format(user_id), 'w') as file_:
         for task in user_tasks:
             if task['userId'] == user_id:
-                write_ = '"{}", "{}", "{}", "{}"\n'.format(
+                write_ = '"{}","{}","{}","{}"\n'.format(
                          user_id, user_name, task['completed'], task['title'])
                 file_.write(write_)
