@@ -20,16 +20,13 @@ if __name__ == '__main__':
     user_tasks = []
     each = {}
 
-    i = 0
     for task in user_todos:
         if task['userId'] == user_id:
-            #print(each)
             each["task"] = "{}".format(task.get('title'))
             each["completed"] = "{}".format(task.get('completed'))
             each["username"] = "{}".format(user_name)
             user_tasks.append(each.copy())
 
-    user_json = {"{}".format(user_id) : user_tasks}
-    
+    user_json = {"{}".format(user_id): user_tasks}    
     with open("{}.json".format(user_id), 'w') as file_:
         json.dump(user_json, file_)
