@@ -23,7 +23,7 @@ if __name__ == '__main__':
     for task in user_todos:
         if task['userId'] == user_id:
             each["task"] = "{}".format(task.get('title'))
-            each["completed"] = "{}".format(task.get('completed'))
+            each["completed"] = task.get('completed')
             each["username"] = "{}".format(user_name)
             user_tasks.append(each.copy())
 
