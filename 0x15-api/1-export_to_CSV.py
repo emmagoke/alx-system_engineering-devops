@@ -14,7 +14,7 @@ if __name__ == '__main__':
     user_tasks = requests.get(user_todo_url).json()
     user_name = ''
 
-    user_name = user_data[0]['name']
+    user_name = user_data[0]['username']
 
     with open("{}.csv".format(user_id), 'w') as file_:
         for task in user_tasks:
