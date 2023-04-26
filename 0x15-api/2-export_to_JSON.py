@@ -27,6 +27,6 @@ if __name__ == '__main__':
             each["username"] = "{}".format(user_name)
             user_tasks.append(each.copy())
 
-    user_json = {"{}".format(user_id): user_tasks}    
+    user_json = {"{}".format(user_id): user_tasks}
     with open("{}.json".format(user_id), 'w') as file_:
         json.dump(user_json, file_)
