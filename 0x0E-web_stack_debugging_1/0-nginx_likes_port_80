@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 # This bash script configures a machine running nginx to listen on port 80
 sudo ufw allow 'HTTP'
+service nginx restart
