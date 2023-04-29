@@ -2,4 +2,4 @@
 # This bash script configures a machine running nginx to listen on port 80
 ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 service nginx restart
-pkill -o nginx
+pkill  nginx
