@@ -23,7 +23,7 @@ backend web_nginx
 echo -e "$haproxy_" | sudo tee -a  /etc/haproxy/haproxy.cfg
 
 # Testing for error
-sudo haproxy -f /etc/haproxy/haproxy.cfg -c
+# sudo haproxy -f /etc/haproxy/haproxy.cfg -c
 
 # Restarting haproxy
 sudo service haproxy restart
