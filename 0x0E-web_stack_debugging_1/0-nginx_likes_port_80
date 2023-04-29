@@ -1,18 +1,5 @@
 #!/usr/bin/env bash
 # This bash script configures a machine running nginx to listen on port 80
-sudo ufw allow 'HTTP'
-server_="
-server {
-	listen 80;
-	listen [::]:80;
-
-	root /var/www/html;
-	index index.html index.htm index.nginx-debian.html;
-
-	server_name _;
-	location /{
-		try_files $uri $uri/=404;
-	}
-}"
-echo "$server_" >> /etc/nginx/sites-available/default
+rm /etc/nginx/sites-enabled/default
+ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 service nginx restart
