@@ -20,7 +20,7 @@ backend web_nginx
 	server 144788-web-01 54.237.110.44:80 check
 	server 144788-web-02 107.23.108.80:80 check
 "
-echo -e "$haproxy_" | sudo tee -a  /etc/haproxy/haproxy.cfg
+sudo echo  "$haproxy_" >>  /etc/haproxy/haproxy.cfg
 
 # Testing for error
 # sudo haproxy -f /etc/haproxy/haproxy.cfg -c
