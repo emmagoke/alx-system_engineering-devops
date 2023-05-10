@@ -13,8 +13,8 @@ def number_of_subscribers(subreddit):
     url = "https://www.reddit.com/r/"
     headers = {'User-Agent': 'MyBot/0.0.1'}
     data = requests.get("{}{}/about.json".format(url, subreddit),
-                        headers=headers)
-    if data:
+                        headers=headers, allow_redirects=False)
+    if data.status_code == 200:
         data = data.json()
         no_sub = data['data']['subscribers']
         return no_sub
