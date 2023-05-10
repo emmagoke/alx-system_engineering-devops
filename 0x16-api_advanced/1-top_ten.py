@@ -12,8 +12,8 @@ def top_ten(subreddit):
     """
     url = "https://www.reddit.com/r/{}/.json".format(subreddit)
     headers = {'User-Agent': 'Bot/0.0.1'}
-    data = requests.get(url, headers=headers)
-    if data:
+    data = requests.get(url, headers=headers, allow_redirects=False)
+    if data.status_code == 200:
         for child in data.json()['data']['children'][:10]:
             print(child['data']['title'])
     else:
