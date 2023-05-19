@@ -24,7 +24,7 @@ backend web_nginx
 echo  "$haproxy_" >>  /etc/haproxy/haproxy.cfg
 
 # Enable haproxy
-# sudo sed -i "8 a\ENABLED=1\n" /etc/default/haproxy
+sudo sed -i "8 a\ENABLED=1\n" /etc/default/haproxy
 
 # Testing for error
 # sudo haproxy -f /etc/haproxy/haproxy.cfg -c
