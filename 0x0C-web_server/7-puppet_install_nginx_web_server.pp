@@ -6,9 +6,10 @@ include stdlib
 
 package {'Nginx':
   ensure   => installed,
-  name     => 'nginx',
-  provider => 'apt',
 }
+#  name     => 'nginx',
+#  provider => 'apt',
+#}
 
 include nginx
 
