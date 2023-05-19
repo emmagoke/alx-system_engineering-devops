@@ -9,18 +9,18 @@ sudo ufw allow 'Nginx HTTP'
 
 echo 'Hello World!' > /var/www/html/index.nginx-debian.html
 
-string_="\trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;" # or
+string_="\trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;\n" # or
 # string_="\tlocation /redirect_me {\n\t\treturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\t}"
 
 echo "Ceci n'est pas une page" > /var/www/html/error_404.html
 error="\terror_page 404 /error_404.html;"
 
-header="\tadd_header X-Served-By $HOSTNAME;"
+header="\tadd_header X-Served-By $HOSTNAME;\n"
 
 # This command replace what is in  line 24 (24i) of /etc/nginx/sites-available/default
 # with the content of strings
 sudo sed -i "24i\ $header" /etc/nginx/sites-available/default
-sudo sed -i  "25i\ $string_" /etc/nginx/sites-available/default
-sudo sed -i  "26i\ $error" /etc/nginx/sites-available/default
+sudo sed -i  "26i\ $string_" /etc/nginx/sites-available/default
+sudo sed -i  "28i\ $error" /etc/nginx/sites-available/default
 
 sudo /etc/init.d/nginx restart
