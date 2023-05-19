@@ -3,10 +3,10 @@
 
 sudo apt-get -y update
 
-# sudo apt-get -y install --no-install-recommends software-properties-common
-# sudo add-apt-repository ppa:vbernat/haproxy-2.4
-# sudo apt-get -y install haproxy=2.4.\*
-sudo apt-get -y install haproxy
+sudo apt-get -y install --no-install-recommends software-properties-common
+sudo add-apt-repository ppa:vbernat/haproxy-2.4
+sudo apt-get -y install haproxy=2.4.\*
+# sudo apt-get -y install haproxy
 
 haproxy_="
 
@@ -24,7 +24,7 @@ backend web_nginx
 echo  "$haproxy_" >>  /etc/haproxy/haproxy.cfg
 
 # Enable haproxy
-sudo sed -i "8 a\ENABLED=1\n" /etc/default/haproxy
+# sudo sed -i "8 a\ENABLED=1\n" /etc/default/haproxy
 
 # Testing for error
 # sudo haproxy -f /etc/haproxy/haproxy.cfg -c
