@@ -23,4 +23,4 @@ sudo sed -i "24i\ $header" /etc/nginx/sites-available/default
 sudo sed -i  "25i\ $string_" /etc/nginx/sites-available/default
 sudo sed -i  "26i\ $error" /etc/nginx/sites-available/default
 
-sudo /etc/inti.d/nginx restart
+sudo /etc/init.d/nginx restart
