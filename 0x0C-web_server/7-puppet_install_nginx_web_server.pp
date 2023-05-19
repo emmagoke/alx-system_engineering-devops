@@ -5,7 +5,7 @@ include stdlib
 # stdlib allows me to use file_line
 
 package {'Nginx':
-  ensure   => present,
+  ensure   => installed,
   name     => 'nginx',
   provider => 'apt',
 }
