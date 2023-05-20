@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# This bash script check who the current user is.
+# run the whoami command under the user passed as an argument
+
+if [ $# -eq 1 ];
+then
+	sudo -u "$1" whoami
+fi
