@@ -4,14 +4,14 @@
 # usage: ./0-world_wide_web domain subdomain[optional]
 # e.g ./0-world_wide_web holberton.online or ./0-world_wide_web holberton.online web-02
 
-sub_domain_name=('wwww' 'lb-01' 'web-01' 'web-02')
+sub_domain_name=('www' 'lb-01' 'web-01' 'web-02')
 
 domain_info ()
 {
 	domain=$1
 	subdomain=$2
 
-	dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk -v sd="$subdomain" 'BEGIN {FS=" "}{print "The subdomain " sd  " is a " $4 " record and points to " $5}'
+	dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk -v sd="$subdomain" 'BEGIN {FS=" "};{print "The subdomain " sd  " is a " $4 " record and points to " $5}'
 }
 
 # 
