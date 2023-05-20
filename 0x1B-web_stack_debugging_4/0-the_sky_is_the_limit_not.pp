@@ -9,5 +9,5 @@ exec { 'ulimit to 4096':
 }
 
 exec { 'restart nginx' :
-  command => '/usr/bin/service nginx restart',
+  command => '/usr/sbin/service nginx restart',
 }
