@@ -1,4 +1,3 @@
-include stdlib
 # This script increase the worker processes of nginx
 # so as to able to handle more request
 # Changes the ULIMIT in /etc/default/nginx from 15 to 4096
