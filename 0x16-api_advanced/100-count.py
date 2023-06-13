@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-""" Count it! """
+'''
+A module containing functions for working with the Reddit API.
+'''
 from requests import get
 
 REDDIT = "https://www.reddit.com/"
