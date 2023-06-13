@@ -1,8 +1,8 @@
+#!/usr/bin/python3
 """
-A module containing functions for working with the Reddit API.
+Created a function that adds a list to reddit red list.
 """
-
-from requests import get
+import requests
 
 REDDIT = "https://www.reddit.com/"
 HEADERS = {'user-agent': 'my-app/0.0.1'}
@@ -33,7 +33,7 @@ def count_words(subreddit, word_list, after="", word_dic={}):
         'after': after
     }
 
-    r = get(url, headers=HEADERS, params=params, allow_redirects=False)
+    r = requests.get(url, headers=HEADERS, params=params, allow_redirects=False)
 
     if r.status_code != 200:
         return None
@@ -57,7 +57,7 @@ def count_words(subreddit, word_list, after="", word_dic={}):
             for w in word_list:
                 word_dic[w] += lower.count(w.lower())
 
-    excep Exception:
+    except Exception:
         return None
 
     count_words(subreddit, word_list, after, word_dic)
