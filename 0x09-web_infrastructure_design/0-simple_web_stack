@@ -1,0 +1,113 @@
+# A Visual Guide to a Simple Web Stack
+
+## Step-by-Step Breakdown
+
+### 1. User's Computer & Browser
+
+The user's browser is the starting point. It needs to find where `www.foobar.com` is located on the internet.
+
+### 2. DNS Request
+
+The browser sends a request to a Domain Name System (DNS) server. Think of DNS as the internet's phonebook. It translates human-readable domain names (like `www.foobar.com`) into machine-readable IP addresses.
+
+### 3. DNS Resolution
+
+The DNS server looks up `www.foobar.com` and finds the corresponding 'A' record, which points to the IP address of your server: `8.8.8.8`.
+
+### 4. HTTP Request
+
+The user's browser, now knowing the server's address, sends an HTTP (or HTTPS) request directly to `8.8.8.8`. This request essentially says, "Please give me the content of the website `www.foobar.com`."
+
+### 5. The Server
+
+The request arrives at your single server. This server is a physical or virtual machine running an operating system (like Linux) and all the necessary software.
+
+### 6. Firewall/Security (Implied)
+
+The first thing the request might hit is a firewall, which checks if the request is legitimate.
+
+### 7. Web Server (Nginx)
+
+The request is then received by the Nginx web server. Nginx's job is to handle incoming HTTP requests. It sees that the request is for a dynamic application (not just a static file like an image).
+
+### 8. Application Server
+
+Nginx passes the request to the application server. The application server is where your website's logic lives. It processes the request, figures out what needs to be done (e.g., retrieve data from the database), and executes your application files (your code).
+
+### 9. Application Files (Codebase)
+
+These are the actual files that make up your website's backend logic, written in a language like Python, PHP, or Node.js.
+
+### 10. Database (MySQL)
+
+If the application needs to retrieve or store data (like user information, blog posts, or product details), it communicates with the MySQL database. The database manages and provides this data.
+
+## The Response Journey
+
+- The application server generates the web page (often as HTML) and sends it back to the Nginx web server.
+- Nginx then sends this HTML, along with any other necessary files (CSS, JavaScript), back to the user's browser.
+- The user's browser receives the files and renders the final webpage.
+
+---
+
+## In-Depth Explanations
+
+### What is a server?
+
+A server is a powerful computer or software program that provides a service to other computers, known as clients. In this case, it's a machine that stores and serves the components of your website.
+
+### What is the role of the domain name?
+
+The domain name `foobar.com` provides a human-friendly address for your website, linking the name to the server's IP address.
+
+### What type of DNS record is `www` in `www.foobar.com`?
+
+`www` is typically a CNAME record pointing to `foobar.com`, or it can be an A record pointing directly to the IP address `8.8.8.8`.
+
+### What is the role of the web server?
+
+The Nginx web server:
+
+- Accepts and processes incoming HTTP requests.
+- Serves static content (images, CSS, JavaScript).
+- Acts as a reverse proxy to pass requests to the application server.
+- Handles SSL/TLS for secure HTTPS connections.
+
+### What is the role of the application server?
+
+The application server executes your backend logic. It:
+
+- Processes incoming requests.
+- Runs your application code.
+- Queries the database if needed.
+- Sends a response (usually HTML) to the web server.
+
+### What is the role of the database?
+
+The MySQL database stores, organizes, and retrieves persistent data (user info, blog posts, etc.).
+
+### What is the server using to communicate with the user's computer?
+
+Communication happens via the TCP/IP protocol suite:
+
+- **IP** routes data packets between devices.
+- **TCP** ensures reliable and ordered delivery.
+- **HTTP/HTTPS** structures web-specific requests and responses.
+
+---
+
+## The Inherent Problems with This Infrastructure
+
+### 1. Single Point of Failure (SPOF)
+
+If any component fails (hardware, Nginx, app server, DB), the entire site goes down.
+
+### 2. Downtime During Maintenance
+
+Restarting services for updates or deployments causes downtime.
+
+### 3. Inability to Scale
+
+A single server cannot handle heavy traffic. If overloaded, it can slow down or crash. Scaling is not easy with this setup.
+
+![Simple Web Server](https://imgur.com/a/TjKaB8V)
