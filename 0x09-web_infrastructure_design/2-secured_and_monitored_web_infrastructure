@@ -1,0 +1,144 @@
+A Secured and Monitored Web Infrastructure
+
+The User's Journey (Secured and Monitored)
+User Request: A user types https://www.foobar.com into their browser. The https is key here.
+
+DNS Lookup: DNS resolves www.foobar.com to the IP of the Load Balancer (8.8.8.8).
+
+Firewall 1 (Network Edge):
+
+The user's encrypted HTTPS request first hits the main firewall protecting the load balancer. This firewall filters out malicious and unwanted traffic before it even reaches our application infrastructure.
+
+Load Balancer (Server 1 - with SSL Termination):
+
+The request passes the firewall and arrives at the HAProxy Load Balancer.
+
+The load balancer uses the SSL Certificate to decrypt the HTTPS traffic. This is known as SSL Termination.
+
+Now that the request is decrypted (it is now plain HTTP), the load balancer inspects it and uses its Round-Robin algorithm to forward it to one of the web servers.
+
+Firewall 2 & 3 (Server-level):
+
+The HTTP request from the load balancer passes through a second firewall, which is configured on Web Server A (or Web Server B), providing another layer of security.
+
+Web/Application Servers (Server 2 & 3):
+
+The request is received by Nginx on the chosen server (e.g., Web Server A).
+
+Nginx passes it to the Application Server, which runs the application code to process the request.
+
+The application communicates with the database (reads from Replica, writes to Primary) to get the necessary data.
+
+Monitoring in Action:
+
+Throughout this process, a Monitoring Client (a small software agent) is running on each of the three servers (Load Balancer, Web Server A, Web Server B).
+
+These clients are constantly collecting metrics (CPU usage, memory, network traffic, Nginx QPS) and logs. They send this data to a centralized Monitoring Service (like Sumologic, Datadog, or Prometheus).
+
+Response Path:
+
+The application server generates the HTML response.
+
+It sends the response back to the load balancer as plain HTTP.
+
+The load balancer re-encrypts the response using the SSL certificate and sends it back to the user's browser over HTTPS. The user sees the secure padlock icon.
+
+Visual Diagram:
+
+                                      +----------------+
+                                      |      User      |
+                                      +----------------+
+                                             |
+                                             | 1. HTTPS Request (Encrypted)
+                                             |
+                                             v
+
++------------------+ +------------------------+
+| Monitoring |<--+---------| Firewall 1 (Network) |
+| Service | | 3. +------------------------+
+| (e.g., Sumologic)| | Data |
++------------------+ | v
+| +------------------------+
+| | Load Balancer (HAProxy)|
+| | SSL Termination Cert |
+| | Monitoring Client |
+| +------------------------+
+| |
+| | 2. HTTP Request (Decrypted)
+| v
++-----------------------------------+----------------------------------+
+| |
+v v
++---------------------+ +---------------------+
+| Firewall 2 (Server) | | Firewall 3 (Server) |
++---------------------+ +---------------------+
+| |
+v v
++---------------------+ +---------------------+
+| Web Server A | | Web Server B |
+| (Nginx + App) |<------------------ Database ------------->| (Nginx + App) |
+| Monitoring Client | (Primary/Replica) | Monitoring Client |
++---------------------+ +---------------------+
+
+Specifics of the New Infrastructure
+For every additional element, why are you adding it?
+3 Firewalls: We add firewalls to create multiple layers of defense (a concept known as "defense in depth"). The main firewall protects the entire network from external threats, while the individual server firewalls protect servers from each other in case one of them is compromised. They act as traffic police, allowing only legitimate, expected requests to pass.
+
+1 SSL Certificate (for HTTPS): We add an SSL certificate to enable HTTPS, which is crucial for security and trust. It encrypts data in transit, protecting it from being read or modified by attackers. It also verifies the identity of the server, assuring users they are connected to the real www.foobar.com.
+
+3 Monitoring Clients: We add monitoring clients to gain visibility into the health and performance of our infrastructure. Without monitoring, we are "flying blind." These clients collect the data needed to detect problems, diagnose failures, and understand performance trends before they impact users.
+
+What are firewalls for?
+A firewall is a network security device (hardware or software) that monitors and controls incoming and outgoing network traffic based on predetermined security rules. Its primary purpose is to establish a barrier between a trusted internal network and an untrusted external network (like the internet), blocking malicious traffic and preventing unauthorized access.
+
+Why is the traffic served over HTTPS?
+Traffic is served over HTTPS (Hypertext Transfer Protocol Secure) for three critical reasons:
+
+Encryption: It encrypts the data exchanged between the user's browser and the server. This prevents eavesdroppers from reading sensitive information like passwords, credit card numbers, or personal messages.
+
+Integrity: It ensures that the data has not been altered in transit. An attacker cannot maliciously modify the content of the website before it reaches the user.
+
+Authentication: It verifies that the server the user is communicating with is genuinely www.foobar.com. This is done via the SSL certificate, which is issued by a trusted Certificate Authority, preventing man-in-the-middle attacks.
+
+What is monitoring used for?
+Monitoring is used to observe the state of an IT infrastructure, collect metrics, and track performance over time. Its key purposes are:
+
+Alerting: To automatically notify engineers when something is wrong (e.g., a server is down, an application is throwing errors, or disk space is low).
+
+Debugging: To provide the data (logs, metrics, traces) needed to diagnose and fix the root cause of a problem.
+
+Performance Analysis: To understand how the system behaves under load, identify bottlenecks, and make informed decisions about scaling and optimization.
+
+How the monitoring tool is collecting data
+The monitoring tool collects data via a small software program called a client or agent that is installed on each server. This agent:
+
+Hooks into the operating system and applications on the server.
+
+Collects various types of data:
+
+Metrics: Numerical data like CPU utilization (%), memory usage (GB), and network I/O (bytes/sec).
+
+Logs: Text-based records of events from applications and the system (e.g., Nginx access logs, application error logs).
+
+Periodically sends this collected data over the network to a central monitoring service for storage, analysis, and visualization.
+
+Explain what to do if you want to monitor the web server QPS
+To monitor the web server's QPS (Queries Per Second), you would configure the monitoring client to parse the web server's access log.
+
+Enable Access Logs: Ensure that Nginx is configured to write an access log for every request it receives.
+
+Configure the Agent: Point the monitoring agent (e.g., Sumologic's collector) to the Nginx access log file (/var/log/nginx/access.log).
+
+Create a Metric: Within the monitoring service, you would set up a rule or query that counts the number of log entries over a specific time interval (e.g., the last second or minute) and displays this as a QPS metric on a dashboard. You can also set alerts if the QPS drops to zero (indicating a problem) or spikes unexpectedly.
+
+Remaining Issues with This Infrastructure
+Even this more advanced setup has architectural trade-offs and potential problems.
+
+1. Why terminating SSL at the load balancer level is an issue
+   Terminating SSL at the load balancer means that while the traffic between the user and the load balancer is encrypted, the traffic between the load balancer and the web servers is unencrypted (plain HTTP). This creates a security vulnerability within your own network. If an attacker manages to gain access to your internal network, they could intercept this unencrypted traffic and capture sensitive data. This internal network segment is often referred to as a "soft, chewy center" inside a "hard, crunchy exterior."
+
+2. Why having only one MySQL server capable of accepting writes is an issue
+   This creates a single point of failure for all write operations. Our database Primary-Replica setup improves read performance and provides a read-only backup, but if the Primary (Master) database server fails, the entire site can no longer accept new data. Users cannot register, post content, or update their profiles. The application becomes effectively read-only until the Primary is manually repaired or a Replica is promoted to become the new Primary, which can cause significant downtime.
+
+3. Why having servers with all the same components might be a problem
+   While simple to manage, having identical servers that run both the web server and application server can lead to resource contention. For example, a very busy Nginx web server might consume a lot of CPU, leaving fewer resources for the application server on the same machine. This can make it difficult to scale components independently. If your application server needs more memory but your web server does not, you still have to upgrade the entire server. Separating components onto their own dedicated servers (e.g., a tier of web servers and a separate tier of application servers) allows for more granular scaling and resource allocation.
