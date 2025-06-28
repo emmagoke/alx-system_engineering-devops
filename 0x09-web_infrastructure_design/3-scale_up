@@ -1,0 +1,106 @@
+A Scaled-Up and Distributed Web Infrastructure
+
+The User's Journey (High-Availability)
+User & DNS: A user requests https://www.foobar.com. DNS can now point to two IP addresses for the load balancers, or to a single virtual IP that is shared between them. The request is aimed at our load-balancing tier.
+
+Load Balancer Cluster (High Availability):
+
+The request arrives at our Load Balancer Cluster. This cluster consists of two servers running HAProxy.
+
+One load balancer is Active, handling all incoming traffic. The second is Passive (or in standby mode), constantly monitoring the active one. If the active load balancer fails, the passive one automatically takes over its IP address and starts handling traffic, ensuring no downtime. This setup is often managed by a protocol like VRRP (Virtual Router Redundancy Protocol).
+
+The active load balancer terminates SSL (decrypts the request) and forwards it to the next tier: the web servers.
+
+The Web Server Tier:
+
+The decrypted HTTP request is sent to a pool of dedicated Web Servers. Let's say we have two for now.
+
+These servers run only Nginx. Their sole job is to handle HTTP requests and serve static content (images, CSS, JavaScript) efficiently.
+
+They act as reverse proxies, forwarding any requests for dynamic content to the next layer: the application servers.
+
+The Application Server Tier:
+
+The request is received by a pool of dedicated Application Servers.
+
+These servers run only the application code. They are completely separate from the web servers.
+
+This allows them to focus all their resources (CPU, Memory) on executing business logic. They process the request and prepare to interact with the database.
+
+The Database Tier (Primary-Replica Cluster):
+
+The application server connects to the database tier.
+
+For write operations (e.g., creating a new user), it connects to the Database Primary.
+
+For read operations (e.g., loading a user's profile), it connects to the Database Replica.
+
+The Response Path:
+
+The data flows back from the Database Tier -> to the Application Server Tier -> to the Web Server Tier -> to the active Load Balancer -> and finally, encrypted and sent back to the user's browser.
+
+Visual Diagram:
+
+                                      +----------------+
+                                      |      User      |
+                                      +----------------+
+                                             | HTTPS
+                                             v
+                             +--------------------------------+
+                             |   Load Balancer Cluster (HA)   |
+                             |      (VRRP for Failover)       |
+                             |                                |
+                             |  +-----------+  +-----------+  |
+                             |  | LB 1      |  | LB 2      |  |
+                             |  | (Active)  |  | (Passive) |  |
+                             |  +-----------+  +-----------+  |
+                             +--------------------------------+
+                                             | HTTP
+                                             v
+                                  +-----------------------+
+                                  |    Web Server Tier    |
+                                  |                       |
+                                  | +----------+ +------+ |
+                                  | | Nginx 1  | |Nginx 2| |
+                                  | +----------+ +------+ |
+                                  +-----------------------+
+                                             |
+                                             v
+                               +--------------------------+
+                               |  Application Server Tier |
+                               |                          |
+                               | +----------+  +--------+ |
+                               | | App Srv 1|  |App Srv 2| |
+                               | +----------+  +--------+ |
+                               +--------------------------+
+                                             |
+                                             v
+                              +-----------------------------+
+                              |      Database Tier          |
+                              |   (Primary-Replica Cluster) |
+                              |                             |
+                              | +----------+   +----------+ |
+                              | | DB Primary|   | DB Replica| |
+                              | | (Writes) |   | (Reads)  | |
+                              | +----------+   +----------+ |
+                              +-----------------------------+
+
+Specifics of the New Infrastructure
+For every additional element, why are you adding it?
+1 Additional Server: We add another server primarily to house the second load balancer, but this change represents a fundamental shift in our architecture. This new server, combined with the redistribution of components, allows us to build a more resilient and scalable system.
+
+1 Load-Balancer (HAProxy) configured as a cluster:
+
+Why add it? To eliminate the load balancer as a Single Point of Failure (SPOF). In our previous design, if the single load balancer failed, the entire site would go down.
+
+How it works: By creating a cluster (typically in an Active-Passive configuration), we ensure high availability. The active load balancer handles all traffic, while the passive one constantly monitors it. If the active one fails, the passive one immediately and automatically takes over its duties. This provides seamless failover and prevents an outage.
+
+Split components (web server, application server, database) with their own server:
+
+Why do it? We are moving from a "monolithic" server approach to a "tiered" or "service-oriented" architecture. This is done for three primary reasons:
+
+Independent Scaling: Each tier (web, application, database) has different resource needs. The application servers might be memory-intensive, while the web servers are CPU-intensive. By separating them, you can scale each tier independently. If you need more power to run the application code, you can add more application servers without touching the web server tier. This is far more efficient and cost-effective.
+
+Improved Performance and Resource Allocation: Each server can be optimized for its specific task. A web server can be fine-tuned for handling thousands of concurrent HTTP connections. An application server can have its memory and processing power dedicated entirely to running your code. This prevents resource contention, where different services on the same machine fight for CPU and memory, slowing everything down.
+
+Enhanced Security and Isolation (Compartmentalization): If a vulnerability is found in your web server software (Nginx), separating the tiers limits the potential damage. An attacker who compromises a web server will not immediately have access to your application code or database because they reside on different, isolated servers. Each tier can have its own specific firewall rules, further strengthening security.
