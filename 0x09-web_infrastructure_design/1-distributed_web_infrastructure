@@ -1,0 +1,125 @@
+A Distributed Three-Server Web Infrastructure
+
+The User's Journey
+User & DNS Lookup: A user requests www.foobar.com. The DNS lookup now returns the IP address of the Load Balancer, not a web server. Let's say it's 8.8.8.8.
+
+The Load Balancer (Server 1):
+
+The user's HTTP request hits our first new component: the Load Balancer (running HAProxy).
+
+The load balancer's job is to distribute incoming requests across multiple servers to prevent any single server from being overloaded.
+
+Using a distribution algorithm, it decides which web server will handle this specific request. It forwards the request to either Web Server A or Web Server B.
+
+The Web/Application Servers (Server 2 & Server 3):
+
+We now have two identical servers, let's call them Web Server A and Web Server B.
+
+Each server runs its own Nginx (web server) and Application Server instance.
+
+Both servers have a copy of the Application Files (the codebase).
+
+The selected server (e.g., Web Server A) receives the request from the load balancer and processes it. It runs the application logic.
+
+The Database Cluster (Primary-Replica):
+
+The application on Web Server A needs to read data. It sends a read query to the Database Replica (Slave) node.
+
+If the application needs to write or update data (e.g., a new user signs up), it sends the write query to the Database Primary (Master) node.
+
+The Primary database executes the write and then replicates the change to the Replica database, ensuring they stay synchronized.
+
+The Response:
+
+The application server generates the HTML page.
+
+It sends the response back through its Nginx instance.
+
+The response travels back to the load balancer, which then relays it to the user's browser.
+
+Visual Diagram:
+
+                                  +----------------+
+                                  |      User      |
+                                  +----------------+
+                                         |
+                                         | 1. DNS: www.foobar.com -> 8.8.8.8
+                                         |
+                                         v
+
++------------------------+ +----------------+
+| Database Server | | Load Balancer |
+| (MySQL Primary-Replica)|<------>| (HAProxy) |
+| | 4. | Server 1 |
++------------------------+ +----------------+
+^ | | 2.
+| Write | Read |
+| v | Distributes Traffic
++---------------------+ |
+| v
++--------------------------------+-----------------+
+| |
+v 3. v 3.
++----------------+ +----------------+
+| Web Server A | | Web Server B |
+| (Nginx + App) | | (Nginx + App) |
+| Server 2 | | Server 3 |
++----------------+ +----------------+
+Specifics of the New Infrastructure
+Why are we adding these new elements?
+Additional Server (for Web/App): We add a second web/application server to introduce redundancy and improve performance. If one web server fails, the other can take over. With both active, they share the traffic load, allowing the site to handle more users simultaneously.
+
+Load Balancer (HAProxy): The load balancer is the traffic manager. We add it to intelligently distribute incoming requests across our two web servers. This prevents one server from being overwhelmed while the other is idle. It's the key component that enables high availability and scalability for the web/application layer.
+
+What distribution algorithm is your load balancer configured with?
+Our load balancer is configured with the Round-Robin distribution algorithm.
+
+How it works: Round-robin is simple and effective. It directs requests to a list of servers on a rotating basis.
+
+The first request goes to Web Server A.
+
+The second request goes to Web Server B.
+
+The third request goes back to Web Server A.
+
+The fourth goes to Web Server B, and so on.
+This ensures that, under normal conditions, the traffic load is distributed evenly between the servers.
+
+Is your load-balancer enabling an Active-Active or Active-Passive setup?
+This is an Active-Active setup.
+
+Explanation: In an Active-Active configuration, both web servers (A and B) are online and actively handling user traffic simultaneously. The load balancer distributes requests between them. This maximizes the use of our resources and improves overall performance.
+
+Difference from Active-Passive: In an Active-Passive setup, only one server (the "active" one) handles traffic. The second server (the "passive" or "standby" one) is idle, only taking over if the active server fails. Active-Active is more efficient for scaling, while Active-Passive is a simpler approach focused purely on redundancy (failover).
+
+How a database Primary-Replica (Master-Slave) cluster works
+A Primary-Replica cluster consists of at least two database servers.
+
+The Primary (Master): This is the main database node. It handles all write operations (INSERT, UPDATE, DELETE). It is the single source of truth for the data.
+
+The Replica (Slave): This node holds a read-only copy of the data from the Primary. It constantly listens for changes made on the Primary and replicates them to its own dataset.
+
+Replication Process: When a write query is executed on the Primary, it records this change in a special log (the binary log). The Replica node reads this log and executes the exact same query on its copy of the data, keeping them synchronized.
+
+This setup improves performance by splitting database workloads: writes go to the Primary, while computationally expensive read queries are offloaded to one or more Replicas.
+
+What is the difference between the Primary and Replica node for the application?
+Primary Node: The application connects to the Primary node whenever it needs to write, update, or delete data. For example, when a new user creates an account, that data is sent to the Primary.
+
+Replica Node: The application connects to the Replica node for read-only operations. For example, when displaying blog posts, user comments, or product listings, the application queries the Replica. This prevents read queries from slowing down the critical write operations on the Primary.
+
+Remaining Issues with This Infrastructure
+Even with these improvements, our three-server setup still has significant vulnerabilities.
+
+1. Where are the SPOFs (Single Points of Failure)?
+   The Load Balancer: We have made our web servers redundant, but now the load balancer itself is a SPOF. If the server running HAProxy fails, all traffic to the website will stop, and both web servers will be unreachable.
+
+The Database Primary Node: While we can read from the Replica, all write operations depend on the Primary. If the Primary database server fails, users will be unable to register, post content, or make any changes to the site's data. The site will effectively be in a "read-only" mode until the Primary is restored.
+
+2. Security Issues
+   No Firewall: There is no dedicated firewall to filter malicious traffic. The servers are directly exposed to the internet, making them vulnerable to attacks, port scanning, and unauthorized access attempts.
+
+No HTTPS: Traffic between the user's browser and the load balancer is unencrypted (HTTP). This means sensitive information, such as user passwords or personal data, is sent as plain text and can be easily intercepted by attackers (a "man-in-the-middle" attack).
+
+3. No Monitoring
+   Explanation: We have no system in place to monitor the health and performance of our servers. We wouldn't know if a server is running out of memory, if its CPU is at 100%, or if a service has crashed until users start reporting that the website is slow or down. Without monitoring, we cannot be proactive about fixing issues before they become critical failures.
